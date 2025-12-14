@@ -9,6 +9,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
+import { validateEmail } from "../../utils/helper";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -23,14 +24,6 @@ const Login = () => {
     showPassword: false,
     success: false,
   });
-
-  //validation functions
-  const validateEmail = (email) => {
-    if (!email.trim()) return "Email is required";
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return "Please enter a valid email address";
-    return "";
-  };
 
   const validatePassword = (password) => {
     if (!password) return "Password is required";
@@ -94,26 +87,27 @@ const Login = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9}}
-          animate={{ opacity: 1, scale: 1}}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center"
         >
-
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4"/>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Welcome Back
+          </h2>
           <p className=" text-gray-600 mb-4">
             You have been sucessfully logged in.
           </p>
 
           <div className="animate-spin w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full mx-auto">
-            <p className="text-sm text-gray-500 mt-2">Redirecting to dashboard</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Redirecting to dashboard
+            </p>
           </div>
-
         </motion.div>
       </div>
-    )
+    );
   }
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -216,7 +210,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={formState.loading}
-            className="w-full bg-linear-to-r from-pink-400 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-pink-500  hover:to-purple-700 transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="w-full bg-linear-to-r from-pink-400 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-pink-500  hover:to-purple-700 disabled:hover:from-pink-400 disabled:hover:to-purple-600 transition-all duration-300 cursor-pointer disabled:cursor-default flex items-center justify-center space-x-2"
           >
             {formState.loading ? (
               <>
