@@ -1,13 +1,12 @@
 import express from "express";
+import { register, login, getMe} from "../controllers/authController"
+import protect from "../middlewares/authMiddleware"
 
 const router = express.Router();
 
-router.post("/login", (req, res) => {
-  res.json({ message: "Login route working" });
-});
+router.post("/register", register)
+router.post("/login", login);
+router.get("/me", protect, getMe);
 
-router.post("/register", (req, res) => {
-  res.json({ message: "Register route working" });
-});
 
-export default router; // ✅ THIS LINE FIXES YOUR ERROR
+export default router;
