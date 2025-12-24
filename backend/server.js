@@ -1,12 +1,17 @@
 import "dotenv/config";
 
-import express from "express";
+import express, { application } from "express";
 import cors from "cors";
 import path from "path";
 import connectDB from "./config/db.js";
 import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
+import applicationRoutes from "./routes/applicationRoutes.js";
+import savedJobsRoutes from "./routes/savedJobsRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 
 const app = express();
@@ -32,6 +37,10 @@ app.use(express.json());
 //routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/user", jobRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/save-jobs", savedJobsRoutes);
+app.use("/api/analytics", analyticsRoutes)
 
 //serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
