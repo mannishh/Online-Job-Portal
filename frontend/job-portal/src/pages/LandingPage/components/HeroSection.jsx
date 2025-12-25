@@ -1,16 +1,16 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Search, Users, Building2, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 const HeroSection = () => {
-  const isAuthenticated = true;
-  const user = { fullName: "Manish", role: "employer" };
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const stat = [
-    { icon: Users, label: "Active Users", value: 1000 },
-    { icon: Building2, label: "Companies", value: 500 },
-    { icon: TrendingUp, label: "Jobs Posted", value: 2000 },
-  ];
+  // const stat = [
+  //   { icon: Users, label: "Active Users", value: 1000 },
+  //   { icon: Building2, label: "Companies", value: 500 },
+  //   { icon: TrendingUp, label: "Jobs Posted", value: 2000 },
+  // ];
 
   return (
     <section className="pt-24 pb-16 bg-white min-h-screen flex items-center">

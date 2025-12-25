@@ -10,8 +10,12 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { validateEmail } from "../../utils/helper";
+import { useAuth } from "../../context/AuthContext";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 
 const Login = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -70,6 +74,30 @@ const Login = () => {
 
     try {
       //login api integration
+      const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe,
+      });
+
+      setFormState((prev) => ({
+        ...prev,
+        loading: false,
+        success: true,
+        errors: {},
+      }));
+
+      const { token, role } = response.data;
+
+      if (token) {
+        login(response.data, token);
+
+        //Redirect based on role after showing success message
+        setTimeout(() => {
+          window.location.href =
+            role === "employer" ? "/employer-dashboard" : "/find-jobs";
+        }, 2000);
+      }
     } catch (error) {
       setFormState((prev) => ({
         ...prev,
@@ -95,14 +123,13 @@ const Login = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Welcome Back
           </h2>
-          <p className=" text-gray-600 mb-4">
-            You have been sucessfully logged in.
+          <p className="text-gray-600 mb-4">
+            You have been successfully logged in.
           </p>
 
-          <div className="animate-spin w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full mx-auto">
-            <p className="text-sm text-gray-500 mt-2">
-              Redirecting to dashboard
-            </p>
+          <div className="flex flex-col items-center">
+            <div className="animate-spin w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full mb-2"></div>
+            <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
           </div>
         </motion.div>
       </div>

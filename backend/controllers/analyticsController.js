@@ -25,7 +25,7 @@ export const getEmployerAnalytics = async (req, res) => {
       company: companyId,
       isClosed: false,
     });
-    const jobs = await Job.find({ comapny: companyId }).select("_id").lean();
+    const jobs = await Job.find({ company: companyId }).select("_id").lean();
     const jobIds = jobs.map((job) => job._id);
 
     const totalApplications = await Application.countDocuments({

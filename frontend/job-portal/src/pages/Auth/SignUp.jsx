@@ -18,8 +18,13 @@ import {
   validateAvatar,
   validatePassword,
 } from "../../utils/helper";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
+import uploadImage from "../../utils/uploadImage";
+import { useAuth } from "../../context/AuthContext";
 
 const SignUp = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -99,7 +104,7 @@ const SignUp = () => {
       avatar: "",
     };
 
-    //remove empty errors
+    // remove empty errors
     Object.keys(errors).forEach((key) => {
       if (!errors[key]) delete errors[key];
     });
@@ -114,6 +119,41 @@ const SignUp = () => {
     setFormState((prev) => ({ ...prev, loading: true }));
 
     try {
+      let avatarUrl = "";
+
+      // upload image if present
+      if (formData.avatar) {
+        const imgUploadRes = await uploadImage(formData.avatar);
+        avatarUrl = imgUploadRes.imageUrl || "";
+      }
+
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        avatar: avatarUrl || "",
+      });
+
+      // Handle successful registration
+      setFormState((prev) => ({
+        ...prev,
+        loading: false,
+        success: true,
+        errors: {},
+      }));
+
+      const { token } = response.data;
+
+      if (token) {
+        login(response.data, token);
+
+        // Redirect based on role
+        setTimeout(() => {
+          window.location.href =
+            formData.role === "employer" ? "/employer-dashboard" : "/find-jobs";
+        }, 2000);
+      }
     } catch (error) {
       console.log("error", error);
 
@@ -145,7 +185,8 @@ const SignUp = () => {
             Welcome to RojGaar! Your account has been successfully created.
           </p>
 
-          <div className="animate-spin w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full mx-auto">
+          <div className="flex flex-col items-center">
+            <div className="animate-spin w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full mx-auto"></div>
             <p className="text-sm text-gray-500 mt-2">
               Redirecting to dashboard...
             </p>
