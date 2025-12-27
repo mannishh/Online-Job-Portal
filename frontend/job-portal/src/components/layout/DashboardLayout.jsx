@@ -4,6 +4,7 @@ import { Briefcase, Building2, LogOut, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { NAVIGATION_MENU } from "../../utils/data";
+import ProfileDropdown from "./ProfileDropdown";
 
 const NavigationItem = ({ item, isActive, onClick, isCollapsed }) => {
   const Icon = item.icon;
@@ -27,7 +28,7 @@ const NavigationItem = ({ item, isActive, onClick, isCollapsed }) => {
   );
 };
 
-const DashboardLayout = ({ activeMenu ,children}) => {
+const DashboardLayout = ({ activeMenu, children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -176,6 +177,18 @@ const DashboardLayout = ({ activeMenu ,children}) => {
 
           <div className="flex items-center space-x-3">
             {/* Profile dropdown */}
+            <ProfileDropdown
+              isOpen={profileDropdownOpen}
+              onToggle={(e) => {
+                e.stopPropagation();
+                setProfileDropdownOpen(!profileDropdownOpen);
+              }}
+              avatar={user?.avatar || ""}
+              companyName={user?.name || ""}
+              email={user?.email || ""}
+              onLogout={logout}
+              
+            />
           </div>
         </header>
 
