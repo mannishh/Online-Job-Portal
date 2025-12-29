@@ -36,9 +36,10 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       if (error.response.status === 401) {
         // Don't redirect on login/register endpoints - let them handle errors
-        const isAuthEndpoint = error.config?.url?.includes('/api/auth/login') || 
-                              error.config?.url?.includes('/api/auth/register');
-        
+        const isAuthEndpoint =
+          error.config?.url?.includes("/api/auth/login") ||
+          error.config?.url?.includes("/api/auth/register");
+
         if (!isAuthEndpoint) {
           // Unauthorized → redirect to login (only for protected routes)
           window.location.href = "/";
