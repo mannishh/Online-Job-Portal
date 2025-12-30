@@ -13,7 +13,6 @@ import applicationRoutes from "./routes/applicationRoutes.js";
 import savedJobsRoutes from "./routes/savedJobsRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 
-
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,10 +36,10 @@ app.use(express.json());
 //routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/user", jobRoutes);
+app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/save-jobs", savedJobsRoutes);
-app.use("/api/analytics", analyticsRoutes)
+app.use("/api/analytics", analyticsRoutes);
 
 //serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
