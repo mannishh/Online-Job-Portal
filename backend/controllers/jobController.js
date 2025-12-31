@@ -48,8 +48,8 @@ export const getJobs = async (req, res) => {
 
   try {
     const jobs = await Job.find(query).populate(
-      "comapny",
-      "name companyName, companyLogo"
+      "company",
+      "name companyName companyLogo"
     );
 
     let savedJobIds = [];
@@ -99,7 +99,7 @@ export const getJobsEmployer = async (req, res) => {
 
     //Get all jobs posted by employer
     const jobs = await Job.find({ company: userId })
-      .populate("Company", "name companyName companyLogo")
+      .populate("company", "name companyName companyLogo")
       .lean(); // .lean() makes jobs plain JS objects so we can add new fields
 
     // Count applications for each job
@@ -210,7 +210,7 @@ export const toggleCloseJob = async (req, res) => {
     job.isClosed = !job.isClosed;
     await job.save();
 
-    res.josn({ message: "Job marked as closed" });
+    res.json({ message: "Job marked as closed" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
