@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import User from "../models/User.js";
 
 // @desc    Update user profile (name, avatar, company details)
@@ -48,28 +49,36 @@ export const updateProfile = async (req, res) => {
 // @desc    Delete resume file (Jobseeker only)
 export const deleteResume = async (req, res) => {
   try {
-    const { resumeUrl } = req.body; //expect resumeUrl to be the URL of the resume
+    const { resumeUrl } = req.body; // expect resumeUrl to be the URL of the resume
 
-    // extract filename from the url
-    const fileName = resumeUrl?.split("/"?.pop());
+    // Safely extract filename from the URL (last segment after "/")
+    const fileName = resumeUrl ? resumeUrl.split("/").pop() : null;
 
     const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ message: "User not found " });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.role !== "jobseeker")
+    if (user.role !== "jobseeker") {
       return res
         .status(403)
         .json({ message: "Only jobseekers can delete resume" });
-
-    // construct the full file path
-    const filePath = path.join(__dirname, "../uploads", fileName);
-
-    //check if the file exists and then delete
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath); // delete the file
     }
 
-    //set the user's resume to an empty string
+    // Only attempt file deletion if we actually have a filename
+    if (fileName) {
+      // Recreate __dirname for ES modules in this file
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+
+      // construct the full file path
+      const filePath = path.join(__dirname, "../uploads", fileName);
+
+      // check if the file exists and then delete
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath); // delete the file
+      }
+    }
+
+    // Clear the user's resume field even if the file wasn't found
     user.resume = "";
     await user.save();
 

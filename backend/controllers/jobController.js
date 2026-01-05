@@ -24,8 +24,10 @@ export const getJobs = async (req, res) => {
 
   const query = {
     isClosed: false,
+    // Text search on title
     ...(keyword && { title: { $regex: keyword, $options: "i" } }),
-    ...(keyword && { location: { $regex: location, $options: "i" } }),
+    // Location search should depend on `location`, not `keyword`
+    ...(location && { location: { $regex: location, $options: "i" } }),
     ...(category && { category }),
     ...(type && { type }),
   };

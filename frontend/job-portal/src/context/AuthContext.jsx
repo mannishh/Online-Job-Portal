@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
 const AuthContext = createContext(null);
 
@@ -27,8 +28,38 @@ export const AuthProvider = ({ children }) => {
       const userStr = localStorage.getItem("user");
 
       if (token && userStr) {
-        const userData = JSON.parse(userStr);
-        setUser(userData);
+        let userData = JSON.parse(userStr);
+
+        // Always fetch fresh data from backend to ensure role is correct
+        try {
+          const response = await axiosInstance.get("/api/auth/me");
+          if (response.data) {
+            // Explicitly extract and normalize role
+            const backendRole = response.data.role || userData.role || "";
+            userData = {
+              ...userData,
+              ...response.data,
+              role: backendRole.toLowerCase().trim(), // Explicitly set role
+            };
+            localStorage.setItem("user", JSON.stringify(userData));
+
+            // Set user state immediately with the updated data
+            setUser({ ...userData }); // Create new object to ensure React detects change
+            setIsAuthenticated(true);
+            setLoading(false);
+            return; // Exit early to avoid setting user twice
+          }
+        } catch (err) {
+          console.error("Failed to fetch user profile:", err);
+          // Normalize role if it exists in localStorage
+          if (userData.role) {
+            userData.role = userData.role.toLowerCase().trim();
+            localStorage.setItem("user", JSON.stringify(userData));
+          }
+        }
+
+        // Set user state if we didn't already set it above
+        setUser({ ...userData }); // Create new object to ensure React detects change
         setIsAuthenticated(true);
       }
     } catch (error) {
@@ -40,12 +71,36 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login
-  const login = (userData, token) => {
+  const login = async (userData, token) => {
+    // Store token first so axiosInstance can use it
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
 
-    setUser(userData);
-    setIsAuthenticated(true);
+    try {
+      // Always fetch fresh user data from backend to ensure role is correct
+      const response = await axiosInstance.get("/api/auth/me");
+      const freshUserData = response.data || userData;
+
+      // Ensure role is always included and normalized
+      const userWithRole = {
+        ...freshUserData,
+        role: (freshUserData.role || userData.role || "").toLowerCase().trim(),
+      };
+
+      localStorage.setItem("user", JSON.stringify(userWithRole));
+
+      setUser({ ...userWithRole }); // Create new object to ensure React detects change
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Failed to fetch user data on login:", error);
+      // Fallback to userData if backend fetch fails - ensure role is present
+      const userWithRole = {
+        ...userData,
+        role: (userData.role || "").toLowerCase().trim(),
+      };
+      localStorage.setItem("user", JSON.stringify(userWithRole));
+      setUser({ ...userWithRole }); // Create new object to ensure React detects change
+      setIsAuthenticated(true);
+    }
   };
 
   // Logout
@@ -61,7 +116,12 @@ export const AuthProvider = ({ children }) => {
 
   // Update User
   const updateUser = (updatedUserData) => {
-    const newUserData = { ...user, ...updatedUserData };
+    // Always preserve role if not provided in update
+    const newUserData = {
+      ...user,
+      ...updatedUserData,
+      role: updatedUserData.role || user?.role || "",
+    };
     localStorage.setItem("user", JSON.stringify(newUserData));
     setUser(newUserData);
   };

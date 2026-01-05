@@ -17,6 +17,7 @@ import { getInitials } from "../../utils/helper";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import StatusBadge from "../../components/StatusBadge";
+import ApplicantProfilePreview from "../../components/Cards/ApplicantProfilePreview";
 
 const ApplicationViewer = () => {
   const location = useLocation();

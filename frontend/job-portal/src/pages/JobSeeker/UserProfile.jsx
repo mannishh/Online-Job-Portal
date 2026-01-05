@@ -70,8 +70,13 @@ const UserProfile = () => {
         toast.success("Profile Details Updated Successfully!!");
 
         // Update profile data and exit edit mode
-        setProfileData({ ...formData });
-        updateUser({ ...formData });
+        // Use response.data to preserve role and other fields from backend
+        const updatedUserData = {
+          ...formData,
+          role: response.data.role || user?.role,
+        };
+        setProfileData(updatedUserData);
+        updateUser(updatedUserData);
       }
     } catch (error) {
       console.error("Profile update failed:", error);
@@ -94,8 +99,13 @@ const UserProfile = () => {
 
       if (response.status === 200) {
         toast.success("Resume Deleted Successfully!!");
-        setProfileData({ ...formData, resume: "" });
-        updateUser({ ...formData, resume: "" });
+        const updatedUserData = {
+          ...formData,
+          resume: "",
+          role: user?.role, // Preserve role
+        };
+        setProfileData(updatedUserData);
+        updateUser(updatedUserData);
       }
     } catch (error) {
       console.error("Profile update failed:", error);
@@ -213,7 +223,7 @@ const UserProfile = () => {
               ) : (
                 <div className="mt-4">
                   <label className="block">
-                    <span className="sr-only cursor-pointer">Choose File</span>
+                    <span className="sr-only">Choose File</span>
                     <input
                       type="file"
                       onChange={(e) => handleImageChange(e, "resume")}

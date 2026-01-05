@@ -146,7 +146,7 @@ const SignUp = () => {
       const { token } = response.data;
 
       if (token) {
-        login(response.data, token);
+        await login(response.data, token);
 
         // Redirect based on role
         setTimeout(() => {

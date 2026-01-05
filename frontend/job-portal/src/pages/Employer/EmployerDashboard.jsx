@@ -14,6 +14,7 @@ import { API_PATHS } from "../../utils/apiPaths";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import JobDashboardCard from "../../components/Cards/JobDashboardCard";
+import ApplicantDashboard from "../../components/Cards/ApplicantDashboard";
 
 const Card = ({ title, headerAction, subtitle, className, children }) => {
   return (
@@ -178,7 +179,7 @@ const EmployerDashboard = () => {
                 {dashboardData?.data?.recentApplications
                   ?.slice(0, 3)
                   ?.map((data, index) => (
-                    <ApplicationDashboardCard
+                    <ApplicantDashboard
                       key={index}
                       applicant={data?.applicant || ""}
                       position={data?.job?.title || ""}
@@ -217,7 +218,7 @@ const EmployerDashboard = () => {
               ].map((action, index) => (
                 <button
                   key={index}
-                  className="flex items-center space-x-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all duration-200 text-left"
+                  className="flex items-center space-x-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all duration-200 text-left cursor-pointer"
                   onClick={() => navigate(action.path)}
                 >
                   <div className={`p-2 rounded-lg ${action.color}`}>

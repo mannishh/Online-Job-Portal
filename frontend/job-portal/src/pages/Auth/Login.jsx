@@ -90,7 +90,7 @@ const Login = () => {
       const { token, role } = response.data;
 
       if (token) {
-        login(response.data, token);
+        await login(response.data, token);
 
         //Redirect based on role after showing success message
         setTimeout(() => {

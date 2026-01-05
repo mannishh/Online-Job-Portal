@@ -67,5 +67,20 @@ export const login = async (req, res) => {
 
 //@desc get logged-in user
 export const getMe = async (req, res) => {
-  res.json(req.user);
+  try {
+    const user = req.user;
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar || "",
+      companyName: user.companyName || "",
+      companyDescription: user.companyDescription || "",
+      companyLogo: user.companyLogo || "",
+      resume: user.resume || "",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

@@ -94,7 +94,7 @@ const JobDetails = () => {
                     <StatusBadge status={jobDetails.applicationStatus} />
                   ) : (
                     <button
-                      className="bg-linear-to-r from-pink-50 to-pink-50 text-sm text-pink-700 hover:text-white px-6 py-2.5 rounded-xl hover:from-pink-500 hover:to-pink-600 transition-all duration-200 font-semibold transform hover:-translate-y-0.5"
+                      className="bg-linear-to-r from-pink-50 to-pink-50 text-sm text-pink-700 hover:text-white px-6 py-2.5 rounded-xl hover:from-pink-500 hover:to-pink-600 transition-all duration-200 font-semibold transform hover:-translate-y-0.5 cursor-pointer"
                       onClick={applyToJob}
                     >
                       Apply Now

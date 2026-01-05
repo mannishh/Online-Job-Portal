@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Briefcase,
   Bookmark,
@@ -11,6 +11,21 @@ const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  // Get role from user object or fallback to localStorage using useMemo
+  const userRole = useMemo(() => {
+    if (user?.role) {
+      return user.role;
+    }
+    
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      return storedUser.role || "";
+    } catch (e) {
+      console.error("Navbar - Error reading localStorage:", e);
+      return "";
+    }
+  }, [user]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -40,7 +55,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-3">
               {user && (
                 <button
-                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors duration-200 relative"
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors duration-200 relative cursor-pointer"
                   onClick={() => navigate("/saved-jobs")}
                 >
                   <Bookmark className="h-5 w-5 text-gray-500"/>
@@ -57,7 +72,7 @@ const Navbar = () => {
                   avatar={user?.avatar || ""}
                   companyName={user?.name || ""}
                   email={user?.email || ""}
-                  userRole={user?.role || ""}
+                  userRole={userRole}
                   onLogout={logout}
                   />
               ) : (

@@ -29,7 +29,7 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <a
               onClick={() => navigate("/find-jobs")}
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+              className="text-gray-600 hover:text-gray-900 transition-colors font-medium cursor-pointer"
             >
               Find Jobs
             </a>
@@ -41,7 +41,7 @@ const Header = () => {
                     : "/login"
                 );
               }}
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+              className="text-gray-600 hover:text-gray-900 transition-colors font-medium cursor-pointer"
             >
               For Employers
             </a>

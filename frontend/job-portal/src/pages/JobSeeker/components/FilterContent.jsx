@@ -47,17 +47,17 @@ const FilterContent = ({
           {JOB_TYPES.map((type) => (
             <label
               key={type.value}
-              className="flex items-center cursor-pointer"
+              className="flex items-center"
             >
               <input
                 type="checkbox"
-                className="rounded border-gray-300 text-pink-600 shadow-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
+                className="cursor-pointer rounded border-gray-300 text-pink-600 shadow-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
                 checked={filters?.type === type.value}
                 onChange={(e) =>
                   handleFilterChange("type", e.target.checked ? type.value : "")
                 }
               />
-              <span className="ml-3 text-gray-700 font-medium">
+              <span className="ml-3 text-gray-700 font-medium cursor-pointer">
                 {type.value}
               </span>
             </label>
@@ -89,7 +89,7 @@ const FilterContent = ({
             >
               <input
                 type="checkbox"
-                className="rounded border-gray-300 text-pink-600 shadow-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
+                className="cursor-pointer rounded border-gray-300 text-pink-600 shadow-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
                 checked={filters?.category === type.value}
                 onChange={(e) =>
                   handleFilterChange(
@@ -98,7 +98,7 @@ const FilterContent = ({
                   )
                 }
               />
-              <span className="ml-3 text-gray-700 font-medium">
+              <span className="ml-3 text-gray-700 font-medium cursor-pointer">
                 {type.value}
               </span>
             </label>

@@ -6,7 +6,7 @@ import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import toast from "react-hot-toast";
 
-import StatusBadge from "./StatusBadge";
+import StatusBadge from "../StatusBadge";
 
 const statusOptions = ["Applied", "In Review", "Rejected", "Accepted"];
 
@@ -119,7 +119,7 @@ const ApplicantProfilePreview = ({
             onClick={() =>
               handleDownloadResume(selectedApplicant.applicant.resume)
             }
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors cursor-pointer"
           >
             <Download className="h-4 w-4" />
             Download Resume
@@ -134,7 +134,7 @@ const ApplicantProfilePreview = ({
               value={currentStatus}
               onChange={onChangeStatus}
               disabled={loading}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500 cursor-pointer"
             >
               {statusOptions.map((status) => (
                 <option key={status} value={status}>

@@ -43,7 +43,7 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
       </div>
       {user && (
         <button
-          className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             onToggleSave();
@@ -51,8 +51,11 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
         >
           <Bookmark
             className={`w-5 h-5 hover:text-pink-600 ${
-              job?.isSaved || saved ? "text-pink-600" : "text-gray-400"}`}
-              />
+              job?.isSaved || saved ? "text-pink-600" : "text-gray-400"
+            }`}
+            // Filled bookmark when saved, outlined when not
+            fill={job?.isSaved || saved ? "#db2777" : "none"}
+          />
 
         </button>
       )}
@@ -88,7 +91,7 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
         <span className="flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5"/>
           {job?.createdAt
-            ? moment(job.createdAt).format("DO MMM YYYY")
+            ? moment(job.createdAt).format("Do MMM YYYY")
             : "N/A"
           }
         </span>

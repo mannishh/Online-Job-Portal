@@ -76,8 +76,13 @@ const EmployerProfilePage = () => {
         toast.success("Profile Details Updated Successfully!");
 
         // Update profile data and exit edit mode
-        setProfileData({ ...formData});
-        updateUser({ ...formData})
+        // Use response.data to preserve role and other fields from backend
+        const updatedUserData = {
+          ...formData,
+          role: response.data.role || user?.role,
+        };
+        setProfileData(updatedUserData);
+        updateUser(updatedUserData);
         setEditMode(false);
       }
     } catch (error) {
