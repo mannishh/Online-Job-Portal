@@ -2,6 +2,12 @@ import Job from "../models/Job.js";
 import User from "../models/User.js";
 import Application from "../models/Application.js";
 import SavedJob from "../models/SavedJob.js";
+import ParsedResume from "../models/ParsedResume.js";
+import {
+  SKILLS_DB,
+  normalizeText,
+  extractSkills,
+} from "../utils/resumeParser.js";
 
 // @desc Create a new job (Employer only)
 export const createJob = async (req, res) => {
@@ -86,6 +92,100 @@ export const getJobs = async (req, res) => {
     res.json(jobsWithExtras);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc    Get recommended jobs for a jobseeker based on parsed resume
+// @route   GET /api/jobs/recommended
+// @access  Private (jobseeker)
+export const getRecommendedJobs = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (req.user.role !== "jobseeker") {
+      return res
+        .status(403)
+        .json({ message: "Only jobseekers can get recommendations" });
+    }
+
+    // Load parsed resume (cached)
+    const parsed = await ParsedResume.findOne({ user: userId });
+
+    if (!parsed) {
+      // No parsed resume yet – return empty list without error
+      return res.json([]);
+    }
+
+    const userSkills = parsed.skills || [];
+
+    // Fetch all open jobs
+    const jobs = await Job.find({ isClosed: false }).populate(
+      "company",
+      "name companyName companyLogo"
+    );
+
+    // Preload saved jobs and applications for this user
+    const [savedJobs, applications] = await Promise.all([
+      SavedJob.find({ jobseeker: userId }).select("job"),
+      Application.find({ applicant: userId }).select("job status"),
+    ]);
+
+    const savedJobIds = new Set(savedJobs.map((s) => String(s.job)));
+    const appliedJobStatusMap = {};
+    applications.forEach((app) => {
+      appliedJobStatusMap[String(app.job)] = app.status;
+    });
+
+    // For each job, derive skills from description/requirements text
+    const recommended = [];
+
+    jobs.forEach((job) => {
+      const combinedText = `${job.description || ""}\n${
+        job.requirements || ""
+      }`;
+      const normalized = normalizeText(combinedText);
+      const jobSkills = extractSkills(normalized);
+
+      if (!jobSkills.length || !userSkills.length) {
+        return;
+      }
+
+      const jobSkillSet = new Set(jobSkills);
+      let commonSkillsCount = 0;
+      userSkills.forEach((s) => {
+        if (jobSkillSet.has(s)) commonSkillsCount += 1;
+      });
+
+      const baseScore =
+        jobSkills.length > 0 ? commonSkillsCount / jobSkills.length : 0;
+
+      // Slightly lower threshold so more reasonable matches show up
+      if (baseScore >= 0.2) {
+        const jobObj = job.toObject();
+        const jobIdStr = String(jobObj._id);
+
+        recommended.push({
+          ...jobObj,
+          isSaved: savedJobIds.has(jobIdStr),
+          applicationStatus: appliedJobStatusMap[jobIdStr] || null,
+          matchScore: Number(baseScore.toFixed(2)),
+        });
+      }
+    });
+
+    // Sort: highest matchScore first
+    recommended.sort((a, b) => b.matchScore - a.matchScore);
+
+    return res.json(recommended);
+  } catch (err) {
+    console.error("Error getting recommended jobs:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to get recommended jobs", error: err.message });
   }
 };
 

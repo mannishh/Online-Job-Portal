@@ -15,6 +15,7 @@ export const API_PATHS = {
 
   JOBS: {
     GET_ALL_JOBS: "/api/jobs",
+    GET_RECOMMENDED_JOBS: "/api/jobs/recommended",
     GET_JOB_BY_ID: (id) => `/api/jobs/${id}`,
     POST_JOB: "/api/jobs",
     GET_JOBS_EMPLOYER: "/api/jobs/get-jobs-employer",
@@ -25,6 +26,10 @@ export const API_PATHS = {
     SAVE_JOB: (id) => `/api/save-jobs/${id}`,
     UNSAVE_JOB: (id) => `/api/save-jobs/${id}`,
     GET_SAVED_JOBS: "/api/save-jobs/my",
+  },
+
+  RESUME: {
+    UPLOAD_RESUME: "/api/resume/upload",
   },
 
   APPLICATIONS: {

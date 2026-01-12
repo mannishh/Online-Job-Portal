@@ -16,10 +16,13 @@ const JobSeekerDashboard = () => {
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState([]);
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [error, setError] = useState(null);
+  const [recommendationError, setRecommendationError] = useState(null);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -77,6 +80,33 @@ const JobSeekerDashboard = () => {
     }
   };
 
+  // Fetch recommended jobs based on parsed resume
+  const fetchRecommendedJobs = async () => {
+    // Only for logged-in jobseekers
+    if (!user || user?.role !== "jobseeker") {
+      setRecommendedJobs([]);
+      return;
+    }
+
+    try {
+      setLoadingRecommendations(true);
+      setRecommendationError(null);
+
+      const response = await axiosInstance.get(
+        API_PATHS.JOBS.GET_RECOMMENDED_JOBS
+      );
+
+      const data = Array.isArray(response.data) ? response.data : [];
+      setRecommendedJobs(data);
+    } catch (err) {
+      console.error("Error fetching recommended jobs:", err);
+      setRecommendationError("Could not load recommended jobs right now.");
+      setRecommendedJobs([]);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
   // Fetch jobs when filters change (debounced)
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -109,6 +139,13 @@ const JobSeekerDashboard = () => {
 
     return () => clearTimeout(timeoutId);
   }, [filters, user]);
+
+  // Fetch recommendations once when user is available
+  useEffect(() => {
+    if (user) {
+      fetchRecommendedJobs();
+    }
+  }, [user]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -171,7 +208,15 @@ const JobSeekerDashboard = () => {
         await axiosInstance.post(API_PATHS.JOBS.SAVE_JOB(jobId));
         toast.success("Job saved successfully!");
       }
+      // Refresh main jobs list
       fetchJobs();
+
+      // Also update recommended jobs in-place so bookmark state reflects immediately
+      setRecommendedJobs((prev) =>
+        prev.map((job) =>
+          job._id === jobId ? { ...job, isSaved: !isSaved } : job
+        )
+      );
     } catch (error) {
       console.log("Error:", err);
       toast.error("Something went wrong! Try again later");
@@ -184,7 +229,15 @@ const JobSeekerDashboard = () => {
         await axiosInstance.post(API_PATHS.APPLICATIONS.APPLY_TO_JOB(jobId));
         toast.success("Applied to job successfully");
       }
+      // Refresh main jobs list
       fetchJobs();
+
+      // Also update recommended jobs so Apply Now switches to Applied
+      setRecommendedJobs((prev) =>
+        prev.map((job) =>
+          job._id === jobId ? { ...job, applicationStatus: "Applied" } : job
+        )
+      );
     } catch (err) {
       console.log("Error:", err);
       const errorMsg = err?.response?.data?.message;
@@ -206,6 +259,59 @@ const JobSeekerDashboard = () => {
             filters={filters}
             handleFilterChange={handleFilterChange}
           />
+
+          {/* Recommended Jobs Section */}
+          {user && user.role === "jobseeker" && (
+            <div className="mt-6 mb-8">
+              <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    Recommended Jobs for You
+                  </h3>
+                  {loadingRecommendations && (
+                    <span className="text-xs text-gray-500">
+                      Loading recommendations...
+                    </span>
+                  )}
+                </div>
+
+                {recommendationError && (
+                  <p className="text-sm text-red-500 mb-3">
+                    {recommendationError}
+                  </p>
+                )}
+
+                {!loadingRecommendations &&
+                  recommendedJobs.length === 0 &&
+                  !recommendationError && (
+                    <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/60">
+                      <p className="text-gray-700 font-medium">
+                        No recommended jobs found based on your resume yet.
+                      </p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        Upload or update your resume to get personalized job
+                        suggestions.
+                      </p>
+                    </div>
+                  )}
+
+                {!loadingRecommendations && recommendedJobs.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    {recommendedJobs.map((job) => (
+                      <JobCard
+                        key={job._id}
+                        job={job}
+                        onClick={() => navigate(`/job/${job._id}`)}
+                        onToggleSave={() => toggleSaveJob(job._id, job.isSaved)}
+                        onApply={() => applyToJob(job._id)}
+                        hideApply={false}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-6 lg:gap-8">
             {/* Desktop Sidebar Filters */}

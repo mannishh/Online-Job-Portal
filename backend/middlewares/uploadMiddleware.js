@@ -17,6 +17,8 @@ const fileFilter = (req, file, cb) => {
     "image/png",
     "image/jpg",
     "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
   ];
 
   if (allowedTypes.includes(file.mimetype)) {

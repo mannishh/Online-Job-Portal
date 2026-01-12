@@ -5,6 +5,7 @@ import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import toast from "react-hot-toast";
 import uploadImage from "../../utils/uploadImage";
+import uploadResume from "../../utils/uploadResume";
 import Navbar from "../../components/layout/Navbar";
 import { Link } from "react-router-dom";
 
@@ -19,7 +20,11 @@ const UserProfile = () => {
   });
 
   const [formData, setFormData] = useState({ ...profileData });
-  const [uploading, setUploading] = useState({ avatar: false, logo: false });
+  const [uploading, setUploading] = useState({
+    avatar: false,
+    logo: false,
+    resume: false,
+  });
   const [saving, setSaving] = useState(false);
 
   const handleInputChange = (field, value) => {
@@ -33,13 +38,29 @@ const UserProfile = () => {
     setUploading((prev) => ({ ...prev, [type]: true }));
 
     try {
-      const imgUploadRes = await uploadImage(file);
-      const avatarUrl = imgUploadRes.imageUrl || "";
+      if (type === "resume") {
+        // 1) Upload resume to existing image/file upload endpoint
+        //    so we still get a URL to store in user.profile (for download)
+        const uploadRes = await uploadImage(file);
+        const resumeUrl = uploadRes.imageUrl || "";
+        handleInputChange(type, resumeUrl);
 
-      // Update form data with new image URL
-      handleInputChange(type, avatarUrl);
+        // 2) Also send resume to dedicated parser endpoint
+        //    to generate ParsedResume used for recommendations
+        try {
+          await uploadResume(file);
+        } catch (parseErr) {
+          console.error("Resume parsing failed:", parseErr);
+        }
+      } else {
+        const imgUploadRes = await uploadImage(file);
+        const avatarUrl = imgUploadRes.imageUrl || "";
+
+        // Update form data with new image URL
+        handleInputChange(type, avatarUrl);
+      }
     } catch (error) {
-      console.error("Image upload failed:", error);
+      console.error("File upload failed:", error);
     } finally {
       setUploading((prev) => ({ ...prev, [type]: false }));
     }
@@ -48,11 +69,12 @@ const UserProfile = () => {
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      handleInputChange(type, previewUrl);
+      // For avatar we show a preview; for resume we don't need preview
+      if (type === "avatar") {
+        const previewUrl = URL.createObjectURL(file);
+        handleInputChange(type, previewUrl);
+      }
 
-      // Upload image
       handleImageUpload(file, type);
     }
   };
@@ -226,6 +248,7 @@ const UserProfile = () => {
                     <span className="sr-only">Choose File</span>
                     <input
                       type="file"
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       onChange={(e) => handleImageChange(e, "resume")}
                       className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 transition-colors"
                     />
