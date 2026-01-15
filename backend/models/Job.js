@@ -40,6 +40,7 @@ const jobSchema = new mongoose.Schema(
     salaryMin: { type: Number },
     salaryMax: { type: Number },
     isClosed: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: false }, // Admin approval required
   },
   {
     timestamps: true,

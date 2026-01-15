@@ -16,6 +16,13 @@ export const createJob = async (req, res) => {
       return res.status(403).json({ message: "Only employers can post jobs" });
     }
 
+    // Check if employer is not blocked
+    if (req.user.isBlocked) {
+      return res.status(403).json({
+        message: "Your account has been blocked. You cannot post jobs.",
+      });
+    }
+
     const job = await Job.create({ ...req.body, company: req.user._id });
     res.status(201).json(job);
   } catch (err) {
@@ -55,10 +62,20 @@ export const getJobs = async (req, res) => {
   }
 
   try {
-    const jobs = await Job.find(query).populate(
-      "company",
-      "name companyName companyLogo"
-    );
+    const jobs = await Job.find(query)
+      .populate({
+        path: "company",
+        select: "name companyName companyLogo isApproved isBlocked",
+      })
+      .lean();
+
+    // Filter out jobs from blocked employers and only show approved jobs
+    const filteredJobs = jobs.filter((job) => {
+      if (!job.company) return false;
+      if (!job.isApproved) return false; // Only show approved jobs
+      if (job.company.isBlocked) return false; // Hide jobs from blocked employers
+      return true;
+    });
 
     let savedJobIds = [];
     let appliedJobStatusMap = {};
@@ -80,10 +97,10 @@ export const getJobs = async (req, res) => {
     }
 
     //Add isSaved and applicationStatus to each job
-    const jobsWithExtras = jobs.map((job) => {
+    const jobsWithExtras = filteredJobs.map((job) => {
       const jobIdStr = String(job._id);
       return {
-        ...job.toObject(),
+        ...job,
         isSaved: savedJobIds.includes(jobIdStr),
         applicationStatus: appliedJobStatusMap[jobIdStr] || null,
       };
@@ -123,10 +140,12 @@ export const getRecommendedJobs = async (req, res) => {
     const userSkills = parsed.skills || [];
 
     // Fetch all open jobs
-    const jobs = await Job.find({ isClosed: false }).populate(
-      "company",
-      "name companyName companyLogo"
-    );
+    const jobs = await Job.find({ isClosed: false })
+      .populate({
+        path: "company",
+        select: "name companyName companyLogo isApproved isBlocked",
+      })
+      .lean();
 
     // Preload saved jobs and applications for this user
     const [savedJobs, applications] = await Promise.all([
@@ -140,10 +159,18 @@ export const getRecommendedJobs = async (req, res) => {
       appliedJobStatusMap[String(app.job)] = app.status;
     });
 
+    // Filter out jobs from blocked employers and only show approved jobs
+    const validJobs = jobs.filter((job) => {
+      if (!job.company) return false;
+      if (!job.isApproved) return false; // Only show approved jobs
+      if (job.company.isBlocked) return false; // Hide jobs from blocked employers
+      return true;
+    });
+
     // For each job, derive skills from description/requirements text
     const recommended = [];
 
-    jobs.forEach((job) => {
+    validJobs.forEach((job) => {
       const combinedText = `${job.description || ""}\n${
         job.requirements || ""
       }`;
@@ -165,11 +192,10 @@ export const getRecommendedJobs = async (req, res) => {
 
       // Slightly lower threshold so more reasonable matches show up
       if (baseScore >= 0.2) {
-        const jobObj = job.toObject();
-        const jobIdStr = String(jobObj._id);
+        const jobIdStr = String(job._id);
 
         recommended.push({
-          ...jobObj,
+          ...job,
           isSaved: savedJobIds.has(jobIdStr),
           applicationStatus: appliedJobStatusMap[jobIdStr] || null,
           matchScore: Number(baseScore.toFixed(2)),
@@ -228,13 +254,22 @@ export const getJobById = async (req, res) => {
   try {
     const { userId } = req.query;
 
-    const job = await Job.findById(req.params.id).populate(
-      "company",
-      "name companyName companyLogo"
-    );
+    const job = await Job.findById(req.params.id).populate({
+      path: "company",
+      select: "name companyName companyLogo isApproved isBlocked",
+    });
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
+    }
+
+    // Check if job is approved and employer is not blocked
+    if (!job.isApproved) {
+      return res.status(403).json({ message: "This job is not available" });
+    }
+
+    if (!job.company || job.company.isBlocked) {
+      return res.status(403).json({ message: "This job is not available" });
     }
 
     let applicationStatus = null;

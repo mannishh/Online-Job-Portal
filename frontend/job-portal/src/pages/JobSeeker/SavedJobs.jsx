@@ -53,8 +53,7 @@ const SavedJobs = () => {
                   onClick={() => navigate(-1)}
                   className="group flex items-center space-x-2 px-3.5 py-2.5 text-sm font-medium text-gray-600 hover:text-white bg-white/50 hover:bg-linear-to-r hover:from-pink-500 hover:to-pink-600 border border-gray-200 hover:border-transparent rounded-xl transition-all duration-300 shadow-lg shadow-gray-100 hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1"/>
-
+                  <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
                 </button>
 
                 <h1 className="text-lg lg:text-xl font-semibold leading-tight text-gray-900">
@@ -70,72 +69,67 @@ const SavedJobs = () => {
                       viewMode === "grid"
                         ? "bg-pink-600 text-white shadow-sm"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                      }`}
+                    }`}
                   >
-
-                      <Grid className="w-4 h-4"/>
+                    <Grid className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
                     className={`p-2 rounded-lg transition-colors ${
-                      viewMode === "grid"
+                      viewMode === "list"
                         ? "bg-pink-600 text-white shadow-sm"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                      }`}
+                    }`}
                   >
-
-                      <Grid className="w-4 h-4"/>
+                    <List className="w-4 h-4" />
                   </button>
-
                 </div>
               </div>
             </div>
 
             {/* Content sections */}
-              <div className="px-0 pb-8 space-y-8">
-                {/* Job Grid */}
-                {savedJobList.length === 0 ? (
-                  <div className="text-center py-16 lg:py-20 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/20">
-                    <div className="text-gray-300 mb-6">
-                      <Bookmark className="w-16 h-16 mx-auto"/>
-                    </div>
-                    <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3">
-                      You haven't saved any jobs yet.
-                    </h3>
-                    <p className="">
-                      Start saving jobs that interest you to view them later.
-                    </p>
-                    <button
-                      onClick={() => navigate('/find-jobs')}
-                      className="bg-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-pink-700 transition-colors mt-4 cursor-pointer"
-                    >
-                      Browse Jobs
-
-                    </button>
+            <div className="px-0 pb-8 space-y-8">
+              {/* Job Grid */}
+              {savedJobList.length === 0 ? (
+                <div className="text-center py-16 lg:py-20 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/20">
+                  <div className="text-gray-300 mb-6">
+                    <Bookmark className="w-16 h-16 mx-auto" />
                   </div>
-                ) : (
-                  <>
-                    <div
-                      className={
-                        viewMode === "grid"
+                  <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3">
+                    You haven't saved any jobs yet.
+                  </h3>
+                  <p className="">
+                    Start saving jobs that interest you to view them later.
+                  </p>
+                  <button
+                    onClick={() => navigate("/find-jobs")}
+                    className="bg-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-pink-700 transition-colors mt-4 cursor-pointer"
+                  >
+                    Browse Jobs
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div
+                    className={
+                      viewMode === "grid"
                         ? "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6"
                         : "space-y-4 lg:space-y-6"
-                      }
-                    >
-                      {savedJobList.map((savedJob) => (
-                        <JobCard
-                          key={savedJob._id}
-                          job={savedJob?.job}
-                          onClick={() => navigate(`/job/${savedJob?.job._id}`)}
-                          onToggleSave={() => handleUnsaveJob(savedJob?.job._id)}
-                          saved
-                          />
-                      ))}
-
-                    </div>
-                  </>
-                )}
-              </div>
+                    }
+                  >
+                    {savedJobList.map((savedJob) => (
+                      <JobCard
+                        key={savedJob._id}
+                        job={savedJob?.job}
+                        onClick={() => navigate(`/job/${savedJob?.job._id}`)}
+                        onToggleSave={() => handleUnsaveJob(savedJob?.job._id)}
+                        saved
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>

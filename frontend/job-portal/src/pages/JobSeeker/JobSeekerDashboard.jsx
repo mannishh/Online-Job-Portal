@@ -82,8 +82,8 @@ const JobSeekerDashboard = () => {
 
   // Fetch recommended jobs based on parsed resume
   const fetchRecommendedJobs = async () => {
-    // Only for logged-in jobseekers
-    if (!user || user?.role !== "jobseeker") {
+    // Only for logged-in jobseekers with an uploaded resume
+    if (!user || user?.role !== "jobseeker" || !user?.resume) {
       setRecommendedJobs([]);
       return;
     }
@@ -140,10 +140,13 @@ const JobSeekerDashboard = () => {
     return () => clearTimeout(timeoutId);
   }, [filters, user]);
 
-  // Fetch recommendations once when user is available
+  // Fetch recommendations once when user is available and only if resume is uploaded
   useEffect(() => {
-    if (user) {
+    if (user && user.resume) {
       fetchRecommendedJobs();
+    } else {
+      // Clear recommendations when there's no resume
+      setRecommendedJobs([]);
     }
   }, [user]);
 
@@ -224,6 +227,14 @@ const JobSeekerDashboard = () => {
   };
 
   const applyToJob = async (jobId) => {
+    // Require resume before applying
+    if (!user || !user.resume) {
+      toast.error(
+        "Resume is required to apply to jobs. Please upload your resume in your profile."
+      );
+      return;
+    }
+
     try {
       if (jobId) {
         await axiosInstance.post(API_PATHS.APPLICATIONS.APPLY_TO_JOB(jobId));
@@ -261,7 +272,7 @@ const JobSeekerDashboard = () => {
           />
 
           {/* Recommended Jobs Section */}
-          {user && user.role === "jobseeker" && (
+          {user && user.role === "jobseeker" && user.resume && (
             <div className="mt-6 mb-8">
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6">
                 <div className="flex items-center justify-between mb-4">

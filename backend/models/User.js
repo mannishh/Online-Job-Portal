@@ -21,8 +21,22 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["jobseeker", "employer"],
+      enum: ["jobseeker", "employer", "admin"],
       required: true,
+    },
+
+    // Account status fields
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    isApproved: {
+      type: Boolean,
+      default: true, // Employers are approved by default (no approval needed)
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
 
     avatar: String,

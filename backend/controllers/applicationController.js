@@ -8,6 +8,31 @@ export const applyToJob = async (req, res) => {
       return res.status(403).json({ message: "Only job seekers can apply" });
     }
 
+    // Check if job seeker account is active
+    if (!req.user.isActive) {
+      return res.status(403).json({
+        message: "Your account has been deactivated. You cannot apply to jobs.",
+      });
+    }
+
+    // Verify job exists and is approved
+    const job = await Job.findById(req.params.jobId).populate({
+      path: "company",
+      select: "isApproved isBlocked",
+    });
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    if (!job.isApproved) {
+      return res.status(403).json({ message: "This job is not available for applications" });
+    }
+
+    if (!job.company || job.company.isBlocked) {
+      return res.status(403).json({ message: "This job is not available for applications" });
+    }
+
     const existing = await Application.findOne({
       job: req.params.jobId,
       applicant: req.user._id,

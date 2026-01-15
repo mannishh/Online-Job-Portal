@@ -41,4 +41,18 @@ export const API_PATHS = {
   IMAGE: {
     UPLOAD_IMAGE: "/api/auth/upload-image", // Upload profile picture
   },
+
+  ADMIN: {
+    LOGIN: "/api/admin/login",
+    JOBSEEKERS: "/api/admin/jobseekers",
+    JOBSEEKER_STATUS: (id) => `/api/admin/jobseekers/${id}/status`,
+    DELETE_JOBSEEKER: (id) => `/api/admin/jobseekers/${id}`,
+    EMPLOYERS: "/api/admin/employers",
+    EMPLOYER_BLOCK: (id) => `/api/admin/employers/${id}/block`,
+    DELETE_EMPLOYER: (id) => `/api/admin/employers/${id}`,
+    JOBS: "/api/admin/jobs",
+    JOB_APPROVAL: (id) => `/api/admin/jobs/${id}/approval`,
+    JOB_STATUS: (id) => `/api/admin/jobs/${id}/status`,
+    DELETE_JOB: (id) => `/api/admin/jobs/${id}`,
+  },
 };

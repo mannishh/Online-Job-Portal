@@ -18,6 +18,8 @@ import JobPostingForm from "./pages/Employer/JobPostingForm";
 import ManageJobs from "./pages/Employer/ManageJobs";
 import ApplicationViewer from "./pages/Employer/ApplicationViewer";
 import EmployerProfile from "./pages/Employer/EmployerProfilePage";
+import AdminLogin from "./pages/Admin/AdminLogin";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -30,6 +32,7 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
 
           <Route path="/find-jobs" element={<JobSeekerDashboard />} />
           <Route path="/job/:jobId" element={<JobDetails />} />
@@ -43,6 +46,11 @@ const App = () => {
             <Route path="/manage-jobs" element={<ManageJobs />} />
             <Route path="/applicants" element={<ApplicationViewer />} />
             <Route path="/company-profile" element={<EmployerProfile />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route element={<ProtectedRoute requiredRole="admin" />}>
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
           </Route>
 
           {/* Catch all route */}

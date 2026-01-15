@@ -46,6 +46,19 @@ export const login = async (req, res) => {
       });
     }
 
+    // Check account status based on role
+    if (user.role === "jobseeker" && !user.isActive) {
+      return res.status(403).json({
+        message: "Your account has been deactivated. Please contact support.",
+      });
+    }
+
+    if (user.role === "employer" && user.isBlocked) {
+      return res.status(403).json({
+        message: "Your account has been blocked. Please contact support.",
+      });
+    }
+
     res.json({
       _id: user._id,
       name: user.name,
@@ -69,16 +82,37 @@ export const login = async (req, res) => {
 export const getMe = async (req, res) => {
   try {
     const user = req.user;
+    
+    // Refresh user data from database to get latest status
+    const freshUser = await User.findById(user._id).select("-password");
+    
+    if (!freshUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check account status
+    if (freshUser.role === "jobseeker" && !freshUser.isActive) {
+      return res.status(403).json({
+        message: "Your account has been deactivated. Please contact support.",
+      });
+    }
+
+    if (freshUser.role === "employer" && freshUser.isBlocked) {
+      return res.status(403).json({
+        message: "Your account has been blocked. Please contact support.",
+      });
+    }
+
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      avatar: user.avatar || "",
-      companyName: user.companyName || "",
-      companyDescription: user.companyDescription || "",
-      companyLogo: user.companyLogo || "",
-      resume: user.resume || "",
+      _id: freshUser._id,
+      name: freshUser.name,
+      email: freshUser.email,
+      role: freshUser.role,
+      avatar: freshUser.avatar || "",
+      companyName: freshUser.companyName || "",
+      companyDescription: freshUser.companyDescription || "",
+      companyLogo: freshUser.companyLogo || "",
+      resume: freshUser.resume || "",
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

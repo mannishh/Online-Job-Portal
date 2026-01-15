@@ -13,6 +13,7 @@ import jobRoutes from "./routes/jobRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
 import savedJobsRoutes from "./routes/savedJobsRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/save-jobs", savedJobsRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/admin", adminRoutes);
 
 //serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
