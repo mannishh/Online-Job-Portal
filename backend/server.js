@@ -48,16 +48,20 @@ app.use("/api/admin", adminRoutes);
 //serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
 
-// Serve frontend in production
+// Inside your production check
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../frontend/job-portal/dist");
-  app.use(express.static(frontendPath));
+  // Use absolute path relative to this file
+  const frontendPath = path.resolve(__dirname, "../frontend/job-portal/dist");
 
-  // Catch-all route for frontend (non-API routes)
+  // Serve static assets first
+  app.use(express.static(frontendPath, { extensions: ["js", "css", "html"] }));
+
+  // Catch-all for frontend routes
   app.get(/^\/(?!api).*$/, (req, res) => {
-    res.sendFile(path.resolve(frontendPath, "index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
+
 
 //start server
 const PORT = process.env.PORT || 5000;
