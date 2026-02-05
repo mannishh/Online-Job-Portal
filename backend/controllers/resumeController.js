@@ -53,7 +53,7 @@ export const uploadAndParseResume = async (req, res) => {
     // Step 5: Experience
     const totalExperienceYears = extractTotalExperienceYears(rawText);
 
-    // Education (simple heuristic)
+    // Education
     const education = extractEducation(rawText);
 
     // Step 6: Save parsed resume (cache)
