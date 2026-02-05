@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "create-admin": "node scripts/createAdmin.js"
+    "server": "nodemon server.js",
+    "create-admin": "node scripts/createAdmin.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "keywords": [],
   "author": "",

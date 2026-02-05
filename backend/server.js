@@ -26,7 +26,7 @@ app.use(
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 //connect database
@@ -47,6 +47,17 @@ app.use("/api/admin", adminRoutes);
 
 //serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
+
+// Serve frontend in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/job-portal/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.resolve(__dirname, "../frontend/job-portal/dist", "index.html"),
+    );
+  });
+}
 
 //start server
 const PORT = process.env.PORT || 5000;
