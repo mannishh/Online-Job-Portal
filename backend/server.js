@@ -23,7 +23,7 @@ const __dirname = path.dirname(__filename);
 //middleware to handle cors
 app.use(
   cors({
-    origin: "https://online-job-portal-xn31.vercel.app/",
+    origin: "https://online-job-portal-xn31.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
